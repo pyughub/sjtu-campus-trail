@@ -220,6 +220,18 @@ function letterLine(source) {
   return line;
 }
 
+function restartButton() {
+  const restart = document.createElement("button");
+  restart.type = "button";
+  restart.className = "quiet finale-restart";
+  restart.textContent = "从头开始";
+  restart.addEventListener("click", () => {
+    clearStored();
+    render();
+  });
+  return restart;
+}
+
 function showSettledFinale() {
   welcome.hidden = true;
   card.hidden = true;
@@ -233,7 +245,7 @@ function showSettledFinale() {
   const cheer = document.createElement("p");
   cheer.className = "finale-cheer";
   cheer.textContent = "祝贺完成任务！";
-  finale.append(name, cheer);
+  finale.append(name, cheer, restartButton());
 }
 
 function renderFinale(state) {
@@ -269,7 +281,7 @@ function renderFinale(state) {
   button.className = "rearrange";
   button.textContent = "Rearrange";
   ask.append(askText, button);
-  finale.append(ask);
+  finale.append(ask, restartButton());
 
   void finale.offsetWidth;
   finale.classList.add("is-in");

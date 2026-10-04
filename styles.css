@@ -272,6 +272,10 @@ button.quiet {
 
 button.quiet:hover { background: transparent; color: var(--ink); }
 
+button.finale-restart {
+  margin-top: 1.6rem;
+}
+
 .feedback {
   min-height: 1.5em;
   margin: 12px 0 0;
