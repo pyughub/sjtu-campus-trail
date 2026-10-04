@@ -156,6 +156,57 @@ function renderReveal(state) {
   }, 4200);
 }
 
+function layLetters(letters) {
+  const glyphs = [...letters.querySelectorAll(".glyph")];
+  const board = document.createElement("div");
+  board.className = "letter-board";
+  letters.replaceWith(board);
+  glyphs.forEach((glyph) => board.append(glyph));
+
+  const size = Number.parseFloat(getComputedStyle(glyphs[0]).fontSize) || 28;
+  const room = Math.max(finale.clientWidth - 56, 220);
+  const col = Math.min(size * 1.45, room / glyphs.length);
+  const rowH = size * 1.85;
+  const rows = [3, 4, 4];
+  const boardW = Math.max(glyphs.length, 4) * col;
+  const boardH = rows.length * rowH;
+  board.style.width = `${boardW}px`;
+  board.style.height = `${boardH}px`;
+
+  const startY = (boardH - rowH) / 2;
+  const startX = (boardW - glyphs.length * col) / 2;
+  const slots = [7, 3, 0, 6, 9, 10, 4, 8, 5, 1, 2];
+  const slotOf = [];
+  slots.forEach((source, slot) => {
+    slotOf[source] = slot;
+  });
+
+  function endPos(slot) {
+    let rest = slot;
+    let row = 0;
+    while (rest >= rows[row]) {
+      rest -= rows[row];
+      row += 1;
+    }
+    const rowW = rows[row] * col;
+    return {
+      x: (boardW - rowW) / 2 + rest * col,
+      y: row * rowH,
+    };
+  }
+
+  glyphs.forEach((glyph, index) => {
+    const end = endPos(slotOf[index]);
+    glyph.classList.add("flying");
+    glyph.dataset.slot = String(slotOf[index]);
+    glyph.dataset.endX = `${end.x}px`;
+    glyph.dataset.endY = `${end.y}px`;
+    glyph.style.left = `${startX + index * col}px`;
+    glyph.style.top = `${startY}px`;
+  });
+  return board;
+}
+
 function letterLine(source) {
   const line = document.createElement("p");
   line.className = "finale-letters";
@@ -229,20 +280,26 @@ function renderFinale(state) {
     finale.querySelectorAll(".finale-line").forEach((node) => {
       if (node !== letters) node.remove();
     });
-    letters.querySelectorAll(".glyph").forEach((glyph) => glyph.classList.add("spinning"));
+    const board = layLetters(letters);
+    board.querySelectorAll(".glyph").forEach((glyph) => glyph.classList.add("spinning"));
 
     after(5000, run, () => {
-      const grid = document.createElement("div");
-      grid.className = "finale-grid";
-      ["s u n", "x i a o", "t o n g"].forEach((row) => grid.append(letterLine(row)));
-      letters.replaceWith(grid);
-      void grid.offsetWidth;
-      grid.classList.add("is-in");
+      const glyphs = [...board.querySelectorAll(".glyph")];
+      glyphs.forEach((glyph) => glyph.classList.remove("spinning"));
+      void board.offsetWidth;
+      glyphs.forEach((glyph) => glyph.classList.add("settle"));
+      glyphs.forEach((glyph) => {
+        const slot = Number(glyph.dataset.slot);
+        glyph.style.transitionDelay = `${slot * 220}ms`;
+        glyph.style.left = glyph.dataset.endX;
+        glyph.style.top = glyph.dataset.endY;
+      });
 
-      after(2000, run, () => {
-        grid.classList.add("is-out");
+      const arrive = (glyphs.length - 1) * 220 + 750;
+      after(arrive + 2000, run, () => {
+        board.classList.add("is-out");
         after(600, run, () => {
-          grid.remove();
+          board.remove();
           const name = document.createElement("p");
           name.className = "finale-name";
           name.textContent = "孙笑童";

@@ -34,17 +34,23 @@ body {
 .stage {
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 28px 16px 40px;
+  width: 100%;
+  padding: 28px 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
 .sheet,
 .card,
 .finale {
-  width: 100%;
-  max-width: 40rem;
-  margin-left: auto;
-  margin-right: auto;
+  display: inline-block;
+  width: min(40rem, calc(100% - 32px));
+  margin-left: 0;
+  margin-right: 0;
+  vertical-align: top;
+  text-align: center;
   background-color: var(--paper);
   background-image: radial-gradient(rgba(19, 38, 77, 0.22) 0.65px, transparent 0.75px);
   background-size: 5px 5px;
@@ -65,8 +71,8 @@ button.welcome {
   min-height: 100vh;
   min-height: 100dvh;
   height: auto;
-  margin: -28px -16px -40px;
-  padding: 18vh 16px 22vh;
+  margin: -28px 0 -40px;
+  padding: 18vh 0 22vh;
   background: transparent;
   color: var(--ink);
   cursor: pointer;
@@ -79,7 +85,7 @@ button.welcome:focus-visible {
 }
 
 .welcome .sheet {
-  display: block;
+  display: inline-block;
   padding: 36px 28px 32px;
   text-align: center;
 }
@@ -106,6 +112,12 @@ button.welcome:focus-visible {
 
 .welcome.is-in .welcome-hint {
   animation: emerge 1.4s ease 1.7s forwards;
+}
+
+.card,
+.finale {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .card {
@@ -315,7 +327,23 @@ button.quiet:hover { background: transparent; color: var(--ink); }
 
 .glyph { display: inline-block; }
 
+.letter-board {
+  position: relative;
+  margin: 0.4rem auto 0;
+}
+
+.glyph.flying {
+  position: absolute;
+  width: 1.2em;
+  margin: 0;
+  text-align: center;
+}
+
 .glyph.spinning { animation: spin 0.9s linear infinite; }
+
+.glyph.flying.settle {
+  transition: left 0.75s ease, top 0.75s ease;
+}
 
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -349,7 +377,8 @@ button.rearrange:disabled {
 }
 
 .finale-grid.is-in { animation: emerge 0.45s ease forwards; }
-.finale-grid.is-out { animation: vanish 0.6s ease forwards; }
+.finale-grid.is-out,
+.letter-board.is-out { animation: vanish 0.6s ease forwards; }
 
 @keyframes emerge {
   from { opacity: 0; transform: translateY(10px); }
