@@ -361,6 +361,11 @@ button.rearrange:disabled {
   animation: emerge 1.1s ease forwards;
 }
 
+.finale.is-settled .finale-name,
+.finale.is-settled .finale-cheer {
+  opacity: 1;
+}
+
 .finale-cheer { font-size: clamp(1.35rem, 4vw, 1.8rem); }
 
 @media (prefers-reduced-motion: reduce) {

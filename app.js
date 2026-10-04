@@ -39,15 +39,60 @@ welcome.addEventListener("click", () => {
   render();
 });
 
+function cookiePath() {
+  const path = location.pathname.replace(/[^/]*$/, "");
+  return path || "/";
+}
+
+function readCookie() {
+  const prefix = `${STORAGE_KEY}=`;
+  const found = document.cookie.split("; ").find((part) => part.startsWith(prefix));
+  return found ? decodeURIComponent(found.slice(prefix.length)) : null;
+}
+
+function writeCookie(raw) {
+  const maxAge = 60 * 60 * 24 * 400;
+  document.cookie = `${STORAGE_KEY}=${encodeURIComponent(raw)}; Max-Age=${maxAge}; Path=${cookiePath()}; SameSite=Lax`;
+}
+
+function clearStored() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* WeChat may block storage in private webviews. */
+  }
+  document.cookie = `${STORAGE_KEY}=; Max-Age=0; Path=${cookiePath()}`;
+}
+
+function readRaw() {
+  let fromLocal = null;
+  try {
+    fromLocal = localStorage.getItem(STORAGE_KEY);
+  } catch {
+    fromLocal = null;
+  }
+  const fromCookie = readCookie();
+  const raw = fromLocal || fromCookie;
+  if (!fromLocal && fromCookie) {
+    try {
+      localStorage.setItem(STORAGE_KEY, fromCookie);
+    } catch {
+      /* Keep the cookie copy. */
+    }
+  }
+  return raw;
+}
+
 function loadState() {
   try {
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    const data = JSON.parse(readRaw() || "null");
     if (!data || typeof data !== "object") return { started: false, index: 0 };
     const index = Number.isInteger(data.index) ? data.index : 0;
     return {
       started: Boolean(data.started),
       index: Math.max(0, Math.min(index, puzzles.length)),
       reveal: Boolean(data.reveal),
+      celebrated: Boolean(data.celebrated),
     };
   } catch {
     return { started: false, index: 0 };
@@ -55,8 +100,24 @@ function loadState() {
 }
 
 function saveState(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const raw = JSON.stringify({
+    started: Boolean(state.started),
+    index: state.index,
+    reveal: Boolean(state.reveal),
+    celebrated: Boolean(state.celebrated),
+  });
+  try {
+    localStorage.setItem(STORAGE_KEY, raw);
+  } catch {
+    /* Cookie still keeps the progress. */
+  }
+  writeCookie(raw);
 }
+
+window.addEventListener("pagehide", () => {
+  const raw = readRaw();
+  if (raw) writeCookie(raw);
+});
 
 function norm(value) {
   return String(value).normalize("NFKC").trim().replace(/\s+/g, "").toLowerCase();
@@ -108,12 +169,33 @@ function letterLine(source) {
   return line;
 }
 
-function renderFinale() {
-  const run = finaleRun;
+function showSettledFinale() {
   welcome.hidden = true;
   card.hidden = true;
   finale.hidden = false;
   finale.classList.remove("is-in");
+  finale.classList.add("is-settled");
+  finale.replaceChildren();
+  const name = document.createElement("p");
+  name.className = "finale-name";
+  name.textContent = "孙笑童";
+  const cheer = document.createElement("p");
+  cheer.className = "finale-cheer";
+  cheer.textContent = "祝贺完成任务！";
+  finale.append(name, cheer);
+}
+
+function renderFinale(state) {
+  if (state.celebrated) {
+    showSettledFinale();
+    return;
+  }
+
+  const run = finaleRun;
+  welcome.hidden = true;
+  card.hidden = true;
+  finale.hidden = false;
+  finale.classList.remove("is-in", "is-settled");
   finale.replaceChildren();
 
   ["恭喜你完成了交大校园探索", "不过，这些字母有什么含义呢？"].forEach((text) => {
@@ -168,6 +250,7 @@ function renderFinale() {
           void name.offsetWidth;
           name.classList.add("is-in");
 
+          saveState({ started: true, index: puzzles.length, celebrated: true });
           after(2000, run, () => {
             const cheer = document.createElement("p");
             cheer.className = "finale-cheer";
@@ -203,7 +286,7 @@ function render() {
   }
 
   if (state.index >= puzzles.length) {
-    renderFinale();
+    renderFinale(state);
     return;
   }
 
@@ -286,7 +369,7 @@ function render() {
   restart.className = "quiet";
   restart.textContent = "从头开始";
   restart.addEventListener("click", () => {
-    localStorage.removeItem(STORAGE_KEY);
+    clearStored();
     render();
   });
 
