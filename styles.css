@@ -34,7 +34,7 @@ body {
 .stage {
   min-height: 100dvh;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-start;
 }
 
@@ -62,12 +62,12 @@ button.welcome {
   margin: 0;
   padding: 0;
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   background: transparent;
   color: var(--ink);
   cursor: pointer;
-  text-align: left;
+  text-align: center;
 }
 
 button.welcome:hover,
@@ -276,9 +276,9 @@ button.quiet:hover { background: transparent; color: var(--ink); }
   padding: 40px 28px 48px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 1.15rem;
-  text-align: left;
+  text-align: center;
 }
 
 .finale-line,
@@ -335,7 +335,7 @@ button.rearrange:disabled {
 
 .finale-grid {
   display: grid;
-  justify-items: start;
+  justify-items: center;
   gap: 0.35rem;
 }
 
