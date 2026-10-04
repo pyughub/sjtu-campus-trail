@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#13264d" />
+  <title>交大校园定向</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="stage">
+    <button class="welcome" id="welcome" type="button">
+      <span class="sheet">
+        <span class="welcome-line">欢迎来到交大闵行校区，你准备好开启美妙的探索之旅了吗？</span>
+        <span class="welcome-hint">点击屏幕继续</span>
+      </span>
+    </button>
+    <section class="finale" id="finale" hidden></section>
+    <section class="card" id="card" hidden>
+      <p class="kicker" id="kicker">闵行校园</p>
+      <h1 id="title">交大校园定向</h1>
+      <div id="body"></div>
+    </section>
+  </main>
+  <script src="puzzles.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
